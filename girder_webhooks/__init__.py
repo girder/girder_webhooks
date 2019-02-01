@@ -1,4 +1,7 @@
+import datetime
 import functools
+import hashlib
+import hmac
 import json
 import jsonschema
 import requests
@@ -20,6 +23,9 @@ _HOOK_SCHEMA = {
             },
             'url': {
                 'type': 'string'
+            },
+            'hmacKey': {
+                'type': 'string'
             }
         },
         'required': ['name', 'url']
@@ -35,12 +41,19 @@ def validate(doc):
         raise ValidationException('Invalid webhooks: ' + e.message)
 
 
-def _emitHook(event, url):
+def _emitHook(event, hook):
     body = json.dumps({
         'name': event.name,
-        'info': event.info
+        'info': event.info,
+        'time': datetime.datetime.utcnow()
     }, cls=JsonEncoder)
-    requests.post(url, data=body, headers={'Content-Type': 'application/json'})
+    headers = {'Content-Type': 'application/json'}
+
+    if 'hmacKey' in hook:
+        headers['Girder-Signature'] = hmac.new(
+            hook['hmacKey'].encode('utf8'), body, hashlib.sha256).hexdigest()
+
+    requests.post(hook['url'], data=body, headers=headers)
 
 
 class WebhooksPlugin(GirderPlugin):
@@ -50,5 +63,4 @@ class WebhooksPlugin(GirderPlugin):
         for hook in Setting().get(_HOOKS, ()):
             events.bind(
                 hook['name'], 'webhook:%s:%s' % (hook['name'], hook['url']),
-                functools.partial(_emitHook, url=hook['url']))
-
+                functools.partial(_emitHook, hook=hook))

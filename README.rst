@@ -15,5 +15,7 @@ be sent an HTTP POST request whenever that event is triggered.
 The request body is a JSON document containing two fields, ``name`` and ``info``. The ``name``
 field is the event name, and the ``info`` is the JSON-encoded event info.
 
-These webhooks are not authenticated in any way in this barebones implementation. HMAC signing would
-be a good next feature to add.
+Each configured hook may also contain a string-valued ``hmacKey`` field. If present, this key
+will be used to generate and pass the ``Girder-Signature`` header. The value of this header is
+the hex digest of the HMAC whose message is the request body, who key is the ``hmacKey`` for the
+webhook, and whose hash algorithm is SHA-256.
