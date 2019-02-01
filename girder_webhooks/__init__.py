@@ -52,7 +52,7 @@ def _emitHook(event, hook):
     headers = {'Content-Type': 'application/json'}
 
     if 'hmacKey' in hook:
-        headers['Girder-Signature'] = hmac.new(
+        headers['Girder-Signature'] = 'sha256=' + hmac.new(
             hook['hmacKey'].encode('utf8'), body, hashlib.sha256).hexdigest()
 
     requests.post(hook['url'], data=body, headers=headers)
