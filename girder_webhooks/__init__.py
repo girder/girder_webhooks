@@ -9,6 +9,7 @@ from girder import events
 from girder.exceptions import ValidationException
 from girder.models.setting import Setting
 from girder.plugin import GirderPlugin
+from girder.api.rest import getApiUrl
 from girder.utility import setting_utilities, JsonEncoder
 
 
@@ -43,6 +44,7 @@ def validate(doc):
 
 def _emitHook(event, hook):
     body = json.dumps({
+        'apiUrl': getApiUrl(),
         'name': event.name,
         'info': event.info,
         'time': datetime.datetime.utcnow()
