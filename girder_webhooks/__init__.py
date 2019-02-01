@@ -55,6 +55,7 @@ def _emitHook(event, hook):
         headers['Girder-Signature'] = 'sha256=' + hmac.new(
             hook['hmacKey'].encode('utf8'), body, hashlib.sha256).hexdigest()
 
+    # TODO this is blocking (because requests is blocking). We should do this asynchronously.
     requests.post(hook['url'], data=body, headers=headers)
 
 
