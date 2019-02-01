@@ -15,14 +15,14 @@ _HOOK_SCHEMA = {
     'items': {
         'type': 'object',
         'properties': {
-            'event': {
+            'name': {
                 'type': 'string'
             },
             'url': {
                 'type': 'string'
             }
         },
-        'required': ['event', 'url']
+        'required': ['name', 'url']
     }
 }
 
@@ -35,7 +35,7 @@ def validate(doc):
         raise ValidationException('Invalid webhooks: ' + e.message)
 
 
-def _emitHook(url, event):
+def _emitHook(event, url):
     body = json.dumps({
         'name': event.name,
         'info': event.info
@@ -49,6 +49,6 @@ class WebhooksPlugin(GirderPlugin):
     def load(self, info):
         for hook in Setting().get(_HOOKS, ()):
             events.bind(
-                hook['event'], 'webhook:%s:%s' % (hook['event'], hook['url']),
+                hook['name'], 'webhook:%s:%s' % (hook['name'], hook['url']),
                 functools.partial(_emitHook, url=hook['url']))
 
