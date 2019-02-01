@@ -1,10 +1,10 @@
-import datetime
 import functools
 import hashlib
 import hmac
 import json
 import jsonschema
 import requests
+import uuid
 from girder import events
 from girder.exceptions import ValidationException
 from girder.models.setting import Setting
@@ -47,7 +47,7 @@ def _emitHook(event, hook):
         'apiUrl': getApiUrl(),
         'name': event.name,
         'info': event.info,
-        'time': datetime.datetime.utcnow()
+        'uid': uuid.uuid4()
     }, cls=JsonEncoder)
     headers = {'Content-Type': 'application/json'}
 
